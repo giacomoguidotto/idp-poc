@@ -4,7 +4,7 @@ export const systemNodes: SystemNode[] = [
   {
     id: "gateway",
     type: "system",
-    position: { x: 450, y: 0 },
+    position: { x: 500, y: 0 },
     data: {
       label: "API Gateway",
       kind: "gateway",
@@ -23,7 +23,7 @@ export const systemNodes: SystemNode[] = [
   {
     id: "user-service",
     type: "system",
-    position: { x: 100, y: 200 },
+    position: { x: 200, y: 220 },
     data: {
       label: "User Service",
       kind: "service",
@@ -42,7 +42,7 @@ export const systemNodes: SystemNode[] = [
   {
     id: "product-catalog",
     type: "system",
-    position: { x: 800, y: 200 },
+    position: { x: 800, y: 220 },
     data: {
       label: "Product Catalog",
       kind: "service",
@@ -61,7 +61,7 @@ export const systemNodes: SystemNode[] = [
   {
     id: "order-service",
     type: "system",
-    position: { x: 450, y: 400 },
+    position: { x: 500, y: 420 },
     data: {
       label: "Order Service",
       kind: "service",
@@ -80,7 +80,7 @@ export const systemNodes: SystemNode[] = [
   {
     id: "payment-service",
     type: "system",
-    position: { x: 150, y: 600 },
+    position: { x: 200, y: 640 },
     data: {
       label: "Payment Service",
       kind: "service",
@@ -99,7 +99,7 @@ export const systemNodes: SystemNode[] = [
   {
     id: "inventory-service",
     type: "system",
-    position: { x: 750, y: 600 },
+    position: { x: 800, y: 640 },
     data: {
       label: "Inventory Service",
       kind: "service",
@@ -118,7 +118,7 @@ export const systemNodes: SystemNode[] = [
   {
     id: "notification-service",
     type: "system",
-    position: { x: 450, y: 800 },
+    position: { x: 500, y: 850 },
     data: {
       label: "Notification Service",
       kind: "service",
@@ -138,7 +138,7 @@ export const systemNodes: SystemNode[] = [
   {
     id: "users-db",
     type: "system",
-    position: { x: -100, y: 100 },
+    position: { x: 0, y: 120 },
     data: {
       label: "Users DB",
       kind: "database",
@@ -150,7 +150,7 @@ export const systemNodes: SystemNode[] = [
   {
     id: "products-db",
     type: "system",
-    position: { x: 1050, y: 100 },
+    position: { x: 1050, y: 120 },
     data: {
       label: "Products DB",
       kind: "database",
@@ -162,7 +162,7 @@ export const systemNodes: SystemNode[] = [
   {
     id: "orders-db",
     type: "system",
-    position: { x: 450, y: 580 },
+    position: { x: 500, y: 620 },
     data: {
       label: "Orders DB",
       kind: "database",
@@ -175,7 +175,7 @@ export const systemNodes: SystemNode[] = [
   {
     id: "cache",
     type: "system",
-    position: { x: 1050, y: 350 },
+    position: { x: 1080, y: 380 },
     data: {
       label: "Redis Cache",
       kind: "cache",
@@ -188,7 +188,7 @@ export const systemNodes: SystemNode[] = [
   {
     id: "event-bus",
     type: "system",
-    position: { x: 150, y: 800 },
+    position: { x: 200, y: 850 },
     data: {
       label: "Event Bus",
       kind: "queue",
@@ -369,7 +369,7 @@ export const draftNodes: SystemNode[] = [
   {
     id: "recommendation-engine",
     type: "system",
-    position: { x: 1050, y: 550 },
+    position: { x: 1080, y: 580 },
     data: {
       label: "Recommendation Engine",
       kind: "service",
@@ -381,7 +381,7 @@ export const draftNodes: SystemNode[] = [
   {
     id: "analytics-service",
     type: "system",
-    position: { x: -100, y: 600 },
+    position: { x: 0, y: 640 },
     data: {
       label: "Analytics Service",
       kind: "service",

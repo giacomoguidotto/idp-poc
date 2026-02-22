@@ -12,11 +12,14 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { useLayerStore } from "@/stores/layer-store";
+import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { SystemNodeComponent } from "./nodes/SystemNode";
 import { DataFlowEdge } from "./edges/DataFlowEdge";
 import { GhostEdge } from "./edges/GhostEdge";
+import { CanvasHeader } from "./CanvasHeader";
 import { LayerSwitcher } from "../layers/LayerSwitcher";
 import { NodeDetailPanel } from "../panels/NodeDetailPanel";
+import { BuildingToolbar } from "../panels/BuildingToolbar";
 import type { SystemNodeData } from "@/data/types";
 
 type SystemNodeType = Node<SystemNodeData>;
@@ -33,6 +36,7 @@ const edgeTypes = {
 const proOptions = { hideAttribution: true };
 
 export function SystemCanvas() {
+  useKeyboardShortcuts();
   const { activeLayer, selectedNodeId, setSelectedNodeId, getNodes, getEdges } = useLayerStore();
 
   const rawNodes = useMemo(() => getNodes(), [activeLayer, getNodes]);
@@ -108,18 +112,20 @@ export function SystemCanvas() {
         />
         <Controls
           showInteractive={false}
-          className="!bottom-4 !left-auto !right-4"
+          className="!bottom-4 !right-4 !left-auto"
         />
         <MiniMap
           nodeColor={() => "oklch(0.40 0.03 270)"}
           maskColor="oklch(0.08 0.01 270 / 0.85)"
-          className="!bottom-4 !right-16"
+          className="!bottom-4 !left-4"
           pannable
           zoomable
         />
       </ReactFlow>
 
+      <CanvasHeader />
       <LayerSwitcher />
+      <BuildingToolbar />
       {selectedNode && (
         <NodeDetailPanel
           node={selectedNode}
