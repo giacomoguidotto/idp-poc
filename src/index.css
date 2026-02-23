@@ -50,7 +50,7 @@
   --color-sidebar-ring: var(--sidebar-ring);
 
   --color-layer-tracing: oklch(0.78 0.15 200);
-  --color-layer-building: oklch(0.80 0.16 80);
+  --color-layer-building: oklch(0.8 0.16 80);
   --color-layer-platform: oklch(0.77 0.15 165);
   --color-layer-error: oklch(0.65 0.25 15);
   --color-layer-warning: oklch(0.75 0.18 55);
@@ -72,31 +72,31 @@
   --popover-foreground: oklch(0.93 0.01 270);
   --primary: oklch(0.93 0.01 270);
   --primary-foreground: oklch(0.15 0.01 270);
-  --secondary: oklch(0.20 0.01 270);
+  --secondary: oklch(0.2 0.01 270);
   --secondary-foreground: oklch(0.93 0.01 270);
-  --muted: oklch(0.20 0.01 270);
-  --muted-foreground: oklch(0.60 0.02 270);
+  --muted: oklch(0.2 0.01 270);
+  --muted-foreground: oklch(0.6 0.02 270);
   --accent: oklch(0.22 0.015 270);
   --accent-foreground: oklch(0.93 0.01 270);
   --destructive: oklch(0.65 0.25 15);
   --border: oklch(0.24 0.02 270);
   --input: oklch(0.22 0.015 270);
-  --ring: oklch(0.50 0.02 270);
+  --ring: oklch(0.5 0.02 270);
   --surface: oklch(0.13 0.01 270);
   --surface-elevated: oklch(0.17 0.015 270);
   --chart-1: oklch(0.78 0.15 200);
   --chart-2: oklch(0.77 0.15 165);
-  --chart-3: oklch(0.80 0.16 80);
+  --chart-3: oklch(0.8 0.16 80);
   --chart-4: oklch(0.65 0.25 15);
   --chart-5: oklch(0.75 0.18 55);
   --sidebar: oklch(0.13 0.01 270);
   --sidebar-foreground: oklch(0.93 0.01 270);
   --sidebar-primary: oklch(0.78 0.15 200);
   --sidebar-primary-foreground: oklch(0.93 0.01 270);
-  --sidebar-accent: oklch(0.20 0.01 270);
+  --sidebar-accent: oklch(0.2 0.01 270);
   --sidebar-accent-foreground: oklch(0.93 0.01 270);
   --sidebar-border: oklch(0.24 0.02 270);
-  --sidebar-ring: oklch(0.50 0.02 270);
+  --sidebar-ring: oklch(0.5 0.02 270);
 }
 
 @layer base {
@@ -111,8 +111,8 @@
 html,
 body,
 #root {
-  height: 100%;
   width: 100%;
+  height: 100%;
   margin: 0;
   overflow: hidden;
 }
@@ -123,12 +123,12 @@ body,
 }
 
 .react-flow__minimap {
-  background-color: oklch(0.13 0.01 270) !important;
-  border-radius: var(--radius-lg) !important;
-  border: 1px solid oklch(0.24 0.02 270) !important;
-  overflow: hidden !important;
   width: 160px !important;
   height: 110px !important;
+  overflow: hidden !important;
+  background-color: oklch(0.13 0.01 270) !important;
+  border: 1px solid oklch(0.24 0.02 270) !important;
+  border-radius: var(--radius-lg) !important;
   box-shadow: 0 4px 20px oklch(0 0 0 / 0.4) !important;
 }
 
@@ -138,21 +138,21 @@ body,
 }
 
 .react-flow__controls {
-  border-radius: var(--radius-lg) !important;
-  border: 1px solid oklch(0.24 0.02 270) !important;
   overflow: hidden;
+  border: 1px solid oklch(0.24 0.02 270) !important;
+  border-radius: var(--radius-lg) !important;
   box-shadow: 0 8px 32px oklch(0 0 0 / 0.4) !important;
 }
 
 .react-flow__controls-button {
+  color: oklch(0.7 0.02 270) !important;
   background: oklch(0.15 0.01 270) !important;
   border-color: oklch(0.24 0.02 270) !important;
-  color: oklch(0.70 0.02 270) !important;
-  fill: oklch(0.70 0.02 270) !important;
+  fill: oklch(0.7 0.02 270) !important;
 }
 .react-flow__controls-button:hover {
-  background: oklch(0.20 0.015 270) !important;
   color: oklch(0.93 0.01 270) !important;
+  background: oklch(0.2 0.015 270) !important;
   fill: oklch(0.93 0.01 270) !important;
 }
 
@@ -162,24 +162,47 @@ body,
 
 /* Canvas dot grid animation for layer switch */
 @keyframes grid-pulse {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.7; }
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.7;
+  }
 }
 
 /* Node glow effects */
 @keyframes error-pulse {
-  0%, 100% { box-shadow: 0 0 12px oklch(0.65 0.25 15 / 0.3), inset 0 0 12px oklch(0.65 0.25 15 / 0.05); }
-  50% { box-shadow: 0 0 24px oklch(0.65 0.25 15 / 0.5), inset 0 0 24px oklch(0.65 0.25 15 / 0.1); }
+  0%,
+  100% {
+    box-shadow:
+      0 0 12px oklch(0.65 0.25 15 / 0.3),
+      inset 0 0 12px oklch(0.65 0.25 15 / 0.05);
+  }
+  50% {
+    box-shadow:
+      0 0 24px oklch(0.65 0.25 15 / 0.5),
+      inset 0 0 24px oklch(0.65 0.25 15 / 0.1);
+  }
 }
 
 @keyframes trace-flow {
-  0% { stroke-dashoffset: 24; }
-  100% { stroke-dashoffset: 0; }
+  0% {
+    stroke-dashoffset: 24;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
 }
 
 @keyframes ghost-shimmer {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 0.75; }
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.75;
+  }
 }
 
 /* Scrollbar styling */
@@ -191,9 +214,9 @@ body,
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: oklch(0.30 0.02 270);
+  background: oklch(0.3 0.02 270);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: oklch(0.40 0.02 270);
+  background: oklch(0.4 0.02 270);
 }

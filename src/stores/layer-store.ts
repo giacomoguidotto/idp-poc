@@ -1,19 +1,24 @@
 import { create } from "zustand";
-import type { LayerId, SystemNode, SystemEdge } from "@/data/types";
-import { systemNodes, systemEdges, draftNodes, draftEdges } from "@/data/system";
+import {
+  draftEdges,
+  draftNodes,
+  systemEdges,
+  systemNodes,
+} from "@/data/system";
+import type { LayerId, SystemEdge, SystemNode } from "@/data/types";
 
 interface LayerState {
   activeLayer: LayerId;
-  selectedNodeId: string | null;
   focusedNodeId: string | null;
-  showDraftNodes: boolean;
-
-  setActiveLayer: (layer: LayerId) => void;
-  setSelectedNodeId: (id: string | null) => void;
-  setFocusedNodeId: (id: string | null) => void;
+  getEdges: () => SystemEdge[];
 
   getNodes: () => SystemNode[];
-  getEdges: () => SystemEdge[];
+  selectedNodeId: string | null;
+
+  setActiveLayer: (layer: LayerId) => void;
+  setFocusedNodeId: (id: string | null) => void;
+  setSelectedNodeId: (id: string | null) => void;
+  showDraftNodes: boolean;
 }
 
 export const useLayerStore = create<LayerState>((set, get) => ({

@@ -1,84 +1,89 @@
-import type { Node, Edge } from "@xyflow/react";
+import type { Edge, Node } from "@xyflow/react";
 
 export type LayerId = "tracing" | "building" | "platform";
 
 export type NodeKind = "service" | "database" | "queue" | "gateway" | "cache";
 
-export type HealthStatus = "healthy" | "degraded" | "critical" | "warning" | "unknown";
+export type HealthStatus =
+  | "healthy"
+  | "degraded"
+  | "critical"
+  | "warning"
+  | "unknown";
 export type DeploymentStatus = "running" | "deploying" | "failed" | "pending";
 
 export interface TeamInfo {
-  name: string;
   color: string;
+  name: string;
 }
 
 export interface ServiceFeature {
+  description: string;
   id: string;
   name: string;
-  description: string;
-  team: TeamInfo;
   status: HealthStatus;
+  team: TeamInfo;
 }
 
 export interface TracingData {
-  traceId: string;
-  latencyMs: number;
-  status: "ok" | "error" | "warning";
   errorMessage?: string;
+  latencyMs: number;
   spanId: string;
+  status: "ok" | "error" | "warning";
   timestamp: string;
+  traceId: string;
 }
 
 export interface BuildingData {
+  description?: string;
   isDraft: boolean;
   proposedBy?: string;
   ticketId?: string;
-  description?: string;
 }
 
 export interface PlatformMetrics {
   cpu: number;
+  deploymentStatus: DeploymentStatus;
+  health: HealthStatus;
+  lastDeploy: string;
   memory: number;
   pods: { ready: number; total: number };
-  health: HealthStatus;
-  deploymentStatus: DeploymentStatus;
-  version: string;
-  lastDeploy: string;
   uptime: string;
+  version: string;
 }
 
 export interface SystemNodeData {
-  label: string;
-  kind: NodeKind;
+  building?: BuildingData;
   description: string;
-  team?: TeamInfo;
   features?: ServiceFeature[];
+  kind: NodeKind;
+  label: string;
+  platform?: PlatformMetrics;
+  team?: TeamInfo;
 
   tracing?: TracingData;
-  building?: BuildingData;
-  platform?: PlatformMetrics;
 
   [key: string]: unknown;
 }
 
 export interface SystemEdgeData {
-  label?: string;
-  protocol?: string;
+  building?: {
+    isDraft: boolean;
+  };
   dataType?: string;
+  label?: string;
+  platform?: {
+    requestsPerSec?: number;
+    errorRate?: number;
+    p99Latency?: number;
+  };
+  protocol?: string;
 
   tracing?: {
     active: boolean;
     latencyMs?: number;
     status: "ok" | "error" | "warning" | "inactive";
     throughput?: string;
-  };
-  building?: {
-    isDraft: boolean;
-  };
-  platform?: {
-    requestsPerSec?: number;
-    errorRate?: number;
-    p99Latency?: number;
   };
 
   [key: string]: unknown;

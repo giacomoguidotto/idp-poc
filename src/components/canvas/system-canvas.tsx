@@ -1,25 +1,25 @@
-import { useEffect } from "react";
 import {
-  ReactFlow,
   Background,
+  BackgroundVariant,
   Controls,
   MiniMap,
-  BackgroundVariant,
-  useNodesState,
-  useEdgesState,
   type Node,
   type OnSelectionChangeFunc,
+  ReactFlow,
+  useEdgesState,
+  useNodesState,
 } from "@xyflow/react";
+import { useEffect } from "react";
 import "@xyflow/react/dist/style.css";
-import { useLayerStore } from "@/stores/layer-store";
-import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
-import { SystemNodeComponent } from "./nodes/SystemNode";
-import { DataFlowEdge } from "./edges/DataFlowEdge";
-import { GhostEdge } from "./edges/GhostEdge";
-import { CanvasHeader } from "./CanvasHeader";
-import { NodeDetailPanel } from "../panels/NodeDetailPanel";
-import { BuildingToolbar } from "../panels/BuildingToolbar";
 import type { SystemNodeData } from "@/data/types";
+import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import { useLayerStore } from "@/stores/layer-store";
+import { BuildingToolbar } from "../panels/building-toolbar";
+import { NodeDetailPanel } from "../panels/node-detail-panel";
+import { CanvasHeader } from "./canvas-header";
+import { DataFlowEdge } from "./edges/data-flow-edge";
+import { GhostEdge } from "./edges/ghost-edge";
+import { SystemNodeComponent } from "./nodes/system-node";
 
 type SystemNodeType = Node<SystemNodeData>;
 
@@ -43,15 +43,18 @@ export function SystemCanvas() {
 
   // Initialize React Flow state with the initial layer's data.
   const [nodes, setNodes, onNodesChange] = useNodesState(
-    useLayerStore.getState().getNodes(),
+    useLayerStore.getState().getNodes()
   );
   const [edges, setEdges, onEdgesChange] = useEdgesState(
-    useLayerStore.getState().getEdges(),
+    useLayerStore.getState().getEdges()
   );
 
   // Sync canvas data whenever the active layer changes.
   // useEffect is correct here — this is a side effect (updating React Flow
   // internal state) that must run after render, not during it.
+  // activeLayer is intentionally in deps to trigger re-sync on layer switch;
+  // data is read via getState() to avoid stale closures from store subscriptions.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: activeLayer triggers re-sync; getState() avoids stale closures
   useEffect(() => {
     const { getNodes, getEdges } = useLayerStore.getState();
     setNodes(getNodes());
@@ -64,43 +67,46 @@ export function SystemCanvas() {
 
   const onPaneClick = () => setSelectedNodeId(null);
 
-  const selectedNode = nodes.find(
-    (n) => n.id === selectedNodeId,
-  ) as SystemNodeType | undefined;
+  const selectedNode = nodes.find((n) => n.id === selectedNodeId) as
+    | SystemNodeType
+    | undefined;
 
   return (
-    <div className="w-full h-full relative">
+    <div className="relative h-full w-full">
       <ReactFlow
-        nodes={nodes}
+        className="!bg-background"
+        defaultEdgeOptions={{ type: "dataflow" }}
         edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
-        onSelectionChange={onSelectionChange}
-        onPaneClick={onPaneClick}
         fitView
         fitViewOptions={{ padding: 0.15 }}
-        proOptions={proOptions}
-        minZoom={0.2}
         maxZoom={2}
-        defaultEdgeOptions={{ type: "dataflow" }}
-        className="!bg-background"
+        minZoom={0.2}
+        nodes={nodes}
+        nodeTypes={nodeTypes}
+        onEdgesChange={onEdgesChange}
+        onNodesChange={onNodesChange}
+        onPaneClick={onPaneClick}
+        onSelectionChange={onSelectionChange}
+        proOptions={proOptions}
       >
         <Background
-          variant={BackgroundVariant.Dots}
+          className="transition-colors duration-700"
+          color={bgColors[activeLayer]}
           gap={24}
           size={1}
-          color={bgColors[activeLayer]}
-          className="transition-colors duration-700"
+          variant={BackgroundVariant.Dots}
         />
-        <Controls showInteractive={false} className="!bottom-4 !right-4 !left-auto" />
+        <Controls
+          className="!bottom-4 !right-4 !left-auto"
+          showInteractive={false}
+        />
         <MiniMap
-          nodeColor={() => "oklch(0.40 0.03 270)"}
-          maskColor="oklch(0.08 0.01 270 / 0.85)"
           className="!bottom-4 !left-4"
-          style={{ width: 160, height: 110 }}
+          maskColor="oklch(0.08 0.01 270 / 0.85)"
+          nodeColor={() => "oklch(0.40 0.03 270)"}
           pannable
+          style={{ width: 160, height: 110 }}
           zoomable
         />
       </ReactFlow>

@@ -1,9 +1,9 @@
 import {
   BaseEdge,
-  getBezierPath,
-  type EdgeProps,
   type Edge,
   EdgeLabelRenderer,
+  type EdgeProps,
+  getBezierPath,
 } from "@xyflow/react";
 import type { SystemEdgeData } from "@/data/types";
 
@@ -44,7 +44,7 @@ export function GhostEdge({
       {data?.label && (
         <EdgeLabelRenderer>
           <div
-            className="absolute pointer-events-all nodrag nopan px-2 py-0.5 rounded text-[9px] font-mono bg-layer-building/5 border border-layer-building/20 text-layer-building/60"
+            className="pointer-events-all nodrag nopan absolute rounded border border-layer-building/20 bg-layer-building/5 px-2 py-0.5 font-mono text-[9px] text-layer-building/60"
             style={{
               transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
             }}

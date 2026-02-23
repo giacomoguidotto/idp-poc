@@ -19,6 +19,14 @@ This is a **UI/UX Proof of Concept** — a throwaway prototype exploring spatial
 3. **Never use `any`.** This is a strict TypeScript project. Use proper generics, narrowing, or `unknown` with guards.
 4. **Never suppress TypeScript errors with `@ts-ignore` or `@ts-expect-error`** unless there is a documented upstream limitation with a comment explaining why.
 5. **The build must pass clean.** Run `bun run build` before considering any task complete. Zero TypeScript errors, zero unused imports.
+6. **Lint and format with Biome via Ultracite.** Run `bun run lint` (check) and `bun run fix` (auto-fix) before finalising changes. The project uses [Ultracite](https://docs.ultracite.ai) with the strictest Biome preset (`ultracite/biome/core` + `ultracite/biome/react`). ESLint and Prettier are removed — do not add them back.
+   - File naming: all component files must be **kebab-case** (e.g. `system-canvas.tsx`, not `SystemCanvas.tsx`).
+   - All `<button>` elements must have an explicit `type` attribute (`type="button"` in almost all cases).
+   - No non-null assertions (`!`). Use `?? fallback` or guard checks instead.
+   - No nested ternaries. Extract helper functions (e.g. `getMetricColor(value)`) for multi-level conditional class logic.
+   - Template literals over string concatenation: `` `${x}suffix` `` not `x + "suffix"`.
+   - Node.js builtins must use the `node:` protocol: `import path from "node:path"`.
+   - `biome-ignore` suppressions are allowed only when a rule is a genuine false positive; always include a short justification comment.
 
 ---
 

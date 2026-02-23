@@ -1,27 +1,42 @@
-import { motion, AnimatePresence } from "motion/react";
+import type { Node } from "@xyflow/react";
 import {
-  X,
-  Server,
-  Database,
-  Radio,
-  Globe,
-  HardDrive,
-  Clock,
-  Cpu,
-  MemoryStick,
+  AlertCircle,
   Box,
   CheckCircle2,
-  XCircle,
-  AlertCircle,
-  Users,
+  Clock,
+  Cpu,
+  Database,
   GitBranch,
+  Globe,
+  HardDrive,
+  MemoryStick,
+  Radio,
+  Server,
+  Users,
+  X,
+  XCircle,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { AnimatePresence, motion } from "motion/react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import type {
+  HealthStatus,
+  NodeKind,
+  ServiceFeature,
+  SystemNodeData,
+} from "@/data/types";
+import { cn } from "@/lib/utils";
 import { useLayerStore } from "@/stores/layer-store";
-import type { NodeKind, HealthStatus, ServiceFeature, SystemNodeData } from "@/data/types";
-import type { Node } from "@xyflow/react";
+
+function getMetricColor(value: number): string {
+  if (value > 80) {
+    return "bg-red-400";
+  }
+  if (value > 60) {
+    return "bg-amber-400";
+  }
+  return "bg-emerald-400";
+}
 
 const kindIcons: Record<NodeKind, React.ElementType> = {
   gateway: Globe,
@@ -31,7 +46,10 @@ const kindIcons: Record<NodeKind, React.ElementType> = {
   cache: HardDrive,
 };
 
-const healthConfig: Record<HealthStatus, { color: string; icon: React.ElementType; label: string }> = {
+const healthConfig: Record<
+  HealthStatus,
+  { color: string; icon: React.ElementType; label: string }
+> = {
   healthy: { color: "text-emerald-400", icon: CheckCircle2, label: "Healthy" },
   degraded: { color: "text-amber-400", icon: AlertCircle, label: "Degraded" },
   critical: { color: "text-red-400", icon: XCircle, label: "Critical" },
@@ -44,19 +62,26 @@ function FeatureItem({ feature }: { feature: ServiceFeature }) {
   const HealthIcon = health.icon;
 
   return (
-    <div className="flex items-start gap-2 py-1.5 px-2 rounded-md hover:bg-white/[0.02] transition-colors">
-      <HealthIcon className={cn("w-3.5 h-3.5 mt-0.5 shrink-0", health.color)} />
+    <div className="flex items-start gap-2 rounded-md px-2 py-1.5 transition-colors hover:bg-white/[0.02]">
+      <HealthIcon className={cn("mt-0.5 h-3.5 w-3.5 shrink-0", health.color)} />
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span className="text-[11px] font-medium text-foreground">{feature.name}</span>
+          <span className="font-medium text-[11px] text-foreground">
+            {feature.name}
+          </span>
           <span
-            className="text-[9px] font-mono px-1 rounded-sm"
-            style={{ color: feature.team.color, backgroundColor: feature.team.color + "15" }}
+            className="rounded-sm px-1 font-mono text-[9px]"
+            style={{
+              color: feature.team.color,
+              backgroundColor: `${feature.team.color}15`,
+            }}
           >
             {feature.team.name}
           </span>
         </div>
-        <p className="text-[10px] text-muted-foreground leading-snug">{feature.description}</p>
+        <p className="text-[10px] text-muted-foreground leading-snug">
+          {feature.description}
+        </p>
       </div>
     </div>
   );
@@ -76,30 +101,32 @@ export function NodeDetailPanel({
   return (
     <AnimatePresence>
       <motion.div
-        key={node.id}
-        className="absolute top-4 right-4 z-50 w-[300px] max-h-[calc(100vh-32px)] overflow-y-auto"
-        initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
+        className="absolute top-4 right-4 z-50 max-h-[calc(100vh-32px)] w-[300px] overflow-y-auto"
         exit={{ opacity: 0, x: 20 }}
+        initial={{ opacity: 0, x: 20 }}
+        key={node.id}
         transition={{ type: "spring", stiffness: 400, damping: 30 }}
       >
-        <div className="rounded-xl border border-border/40 bg-card/80 backdrop-blur-xl shadow-2xl shadow-black/40">
+        <div className="rounded-xl border border-border/40 bg-card/80 shadow-2xl shadow-black/40 backdrop-blur-xl">
           {/* Header */}
           <div className="p-4 pb-3">
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-white/5">
-                  <Icon className="w-5 h-5 text-muted-foreground" />
+                <div className="rounded-lg bg-white/5 p-2">
+                  <Icon className="h-5 w-5 text-muted-foreground" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold">{data.label}</h3>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-[10px] font-mono text-muted-foreground capitalize">{data.kind}</span>
+                  <h3 className="font-semibold text-sm">{data.label}</h3>
+                  <div className="mt-0.5 flex items-center gap-2">
+                    <span className="font-mono text-[10px] text-muted-foreground capitalize">
+                      {data.kind}
+                    </span>
                     {data.team && (
                       <>
                         <span className="text-muted-foreground/30">·</span>
                         <span
-                          className="text-[10px] font-mono"
+                          className="font-mono text-[10px]"
                           style={{ color: data.team.color }}
                         >
                           {data.team.name}
@@ -110,46 +137,55 @@ export function NodeDetailPanel({
                 </div>
               </div>
               <button
+                className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground"
                 onClick={onClose}
-                className="p-1 rounded-md hover:bg-white/10 text-muted-foreground hover:text-foreground transition-colors"
+                type="button"
               >
-                <X className="w-4 h-4" />
+                <X className="h-4 w-4" />
               </button>
             </div>
-            <p className="text-[11px] text-muted-foreground mt-2 leading-relaxed">{data.description}</p>
+            <p className="mt-2 text-[11px] text-muted-foreground leading-relaxed">
+              {data.description}
+            </p>
           </div>
 
           <Separator className="opacity-50" />
 
           {/* Tracing details */}
           {activeLayer === "tracing" && data.tracing && (
-            <div className="p-4 space-y-3">
-              <h4 className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground/60">
+            <div className="space-y-3 p-4">
+              <h4 className="font-mono text-[10px] text-muted-foreground/60 uppercase tracking-wider">
                 Trace Info
               </h4>
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-[11px]">
-                  <span className="text-muted-foreground flex items-center gap-1.5">
-                    <Clock className="w-3 h-3" /> Latency
+                  <span className="flex items-center gap-1.5 text-muted-foreground">
+                    <Clock className="h-3 w-3" /> Latency
                   </span>
-                  <span className={cn(
-                    "font-mono",
-                    data.tracing.status === "error" ? "text-layer-error" : "text-foreground",
-                  )}>
+                  <span
+                    className={cn(
+                      "font-mono",
+                      data.tracing.status === "error"
+                        ? "text-layer-error"
+                        : "text-foreground"
+                    )}
+                  >
                     {data.tracing.latencyMs >= 1000
                       ? `${(data.tracing.latencyMs / 1000).toFixed(1)}s`
                       : `${data.tracing.latencyMs}ms`}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-[11px]">
-                  <span className="text-muted-foreground flex items-center gap-1.5">
-                    <GitBranch className="w-3 h-3" /> Span ID
+                  <span className="flex items-center gap-1.5 text-muted-foreground">
+                    <GitBranch className="h-3 w-3" /> Span ID
                   </span>
-                  <span className="font-mono text-foreground/70">{data.tracing.spanId}</span>
+                  <span className="font-mono text-foreground/70">
+                    {data.tracing.spanId}
+                  </span>
                 </div>
                 {data.tracing.errorMessage && (
-                  <div className="p-2 rounded-md bg-layer-error/5 border border-layer-error/10">
-                    <p className="text-[10px] text-layer-error font-mono leading-relaxed">
+                  <div className="rounded-md border border-layer-error/10 bg-layer-error/5 p-2">
+                    <p className="font-mono text-[10px] text-layer-error leading-relaxed">
                       {data.tracing.errorMessage}
                     </p>
                   </div>
@@ -160,8 +196,8 @@ export function NodeDetailPanel({
 
           {/* Platform details */}
           {activeLayer === "platform" && data.platform && (
-            <div className="p-4 space-y-3">
-              <h4 className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground/60">
+            <div className="space-y-3 p-4">
+              <h4 className="font-mono text-[10px] text-muted-foreground/60 uppercase tracking-wider">
                 Infrastructure
               </h4>
               <div className="space-y-2.5">
@@ -172,8 +208,13 @@ export function NodeDetailPanel({
                   return (
                     <div className="flex items-center justify-between text-[11px]">
                       <span className="text-muted-foreground">Health</span>
-                      <span className={cn("flex items-center gap-1 font-medium", health.color)}>
-                        <HealthIcon className="w-3 h-3" /> {health.label}
+                      <span
+                        className={cn(
+                          "flex items-center gap-1 font-medium",
+                          health.color
+                        )}
+                      >
+                        <HealthIcon className="h-3 w-3" /> {health.label}
                       </span>
                     </div>
                   );
@@ -181,14 +222,16 @@ export function NodeDetailPanel({
                 {/* CPU */}
                 <div className="space-y-1">
                   <div className="flex justify-between text-[10px]">
-                    <span className="text-muted-foreground flex items-center gap-1"><Cpu className="w-3 h-3" /> CPU</span>
+                    <span className="flex items-center gap-1 text-muted-foreground">
+                      <Cpu className="h-3 w-3" /> CPU
+                    </span>
                     <span className="font-mono">{data.platform.cpu}%</span>
                   </div>
-                  <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                  <div className="h-1.5 overflow-hidden rounded-full bg-white/5">
                     <div
                       className={cn(
                         "h-full rounded-full transition-all duration-700",
-                        data.platform.cpu > 80 ? "bg-red-400" : data.platform.cpu > 60 ? "bg-amber-400" : "bg-emerald-400",
+                        getMetricColor(data.platform.cpu)
                       )}
                       style={{ width: `${data.platform.cpu}%` }}
                     />
@@ -197,14 +240,16 @@ export function NodeDetailPanel({
                 {/* Memory */}
                 <div className="space-y-1">
                   <div className="flex justify-between text-[10px]">
-                    <span className="text-muted-foreground flex items-center gap-1"><MemoryStick className="w-3 h-3" /> Memory</span>
+                    <span className="flex items-center gap-1 text-muted-foreground">
+                      <MemoryStick className="h-3 w-3" /> Memory
+                    </span>
                     <span className="font-mono">{data.platform.memory}%</span>
                   </div>
-                  <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                  <div className="h-1.5 overflow-hidden rounded-full bg-white/5">
                     <div
                       className={cn(
                         "h-full rounded-full transition-all duration-700",
-                        data.platform.memory > 80 ? "bg-red-400" : data.platform.memory > 60 ? "bg-amber-400" : "bg-emerald-400",
+                        getMetricColor(data.platform.memory)
                       )}
                       style={{ width: `${data.platform.memory}%` }}
                     />
@@ -212,7 +257,9 @@ export function NodeDetailPanel({
                 </div>
                 {/* Pods */}
                 <div className="flex items-center justify-between text-[11px]">
-                  <span className="text-muted-foreground flex items-center gap-1"><Box className="w-3 h-3" /> Pods</span>
+                  <span className="flex items-center gap-1 text-muted-foreground">
+                    <Box className="h-3 w-3" /> Pods
+                  </span>
                   <span className="font-mono">
                     {data.platform.pods.ready}/{data.platform.pods.total} ready
                   </span>
@@ -220,11 +267,15 @@ export function NodeDetailPanel({
                 {/* Deploy info */}
                 <div className="flex items-center justify-between text-[11px]">
                   <span className="text-muted-foreground">Version</span>
-                  <span className="font-mono text-foreground/70">{data.platform.version}</span>
+                  <span className="font-mono text-foreground/70">
+                    {data.platform.version}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between text-[11px]">
                   <span className="text-muted-foreground">Uptime</span>
-                  <span className="font-mono text-foreground/70">{data.platform.uptime}</span>
+                  <span className="font-mono text-foreground/70">
+                    {data.platform.uptime}
+                  </span>
                 </div>
               </div>
             </div>
@@ -232,12 +283,12 @@ export function NodeDetailPanel({
 
           {/* Building details */}
           {activeLayer === "building" && data.building?.isDraft && (
-            <div className="p-4 space-y-3">
-              <h4 className="text-[10px] font-mono uppercase tracking-wider text-layer-building/50">
+            <div className="space-y-3 p-4">
+              <h4 className="font-mono text-[10px] text-layer-building/50 uppercase tracking-wider">
                 Proposal
               </h4>
               {data.building.ticketId && (
-                <Badge className="bg-layer-building/10 text-layer-building/80 border-layer-building/20 hover:bg-layer-building/10 font-mono text-[10px]">
+                <Badge className="border-layer-building/20 bg-layer-building/10 font-mono text-[10px] text-layer-building/80 hover:bg-layer-building/10">
                   {data.building.ticketId}
                 </Badge>
               )}
@@ -248,7 +299,7 @@ export function NodeDetailPanel({
               )}
               {data.building.proposedBy && (
                 <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-                  <Users className="w-3 h-3" />
+                  <Users className="h-3 w-3" />
                   <span>Proposed by {data.building.proposedBy}</span>
                 </div>
               )}
@@ -259,13 +310,13 @@ export function NodeDetailPanel({
           {data.features && data.features.length > 0 && (
             <>
               <Separator className="opacity-50" />
-              <div className="p-4 space-y-2">
-                <h4 className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground/60">
+              <div className="space-y-2 p-4">
+                <h4 className="font-mono text-[10px] text-muted-foreground/60 uppercase tracking-wider">
                   Features
                 </h4>
                 <div className="space-y-0.5">
                   {data.features.map((feature) => (
-                    <FeatureItem key={feature.id} feature={feature} />
+                    <FeatureItem feature={feature} key={feature.id} />
                   ))}
                 </div>
               </div>

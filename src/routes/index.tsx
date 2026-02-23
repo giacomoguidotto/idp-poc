@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { SystemCanvas } from "@/components/canvas/SystemCanvas";
+import { SystemCanvas } from "@/components/canvas/system-canvas";
 
 export const Route = createFileRoute("/")({
   component: CanvasPage,

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import { useLayerStore } from "@/stores/layer-store";
 import type { LayerId } from "@/data/types";
+import { useLayerStore } from "@/stores/layer-store";
 
 const layerKeys: Record<string, LayerId> = {
   "1": "tracing",
@@ -14,7 +14,12 @@ export function useKeyboardShortcuts() {
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement
+      ) {
+        return;
+      }
 
       const layer = layerKeys[e.key];
       if (layer) {
