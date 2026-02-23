@@ -18,9 +18,10 @@ This PoC asks a question: **what if the system was something you could see, all 
 
 Humans live in a 3D world and interact with 2D screens. We're wired to reason spatially — about proximity, flow, direction, containment. Traditional developer platforms ignore this entirely: they present systems as lists, tables, and trees, forcing users to reconstruct spatial relationships in their heads.
 
-Meridian places the entire system on a canvas. Services, databases, queues, and caches become objects with physical positions. Connections between them — data flows, API calls, event streams — become visible lines with direction. The topology isn't described; it's *drawn*.
+Meridian places the entire system on a canvas. Services, databases, queues, and caches become objects with physical positions. Connections between them — data flows, API calls, event streams — become visible lines with direction. The topology isn't described; it's _drawn_.
 
 This isn't about making things pretty. Spatial layout lets you answer questions that are hard to answer with text:
+
 - What does this service depend on?
 - Where does data flow after it leaves the gateway?
 - Which services are clustered together? Which ones are isolated?
@@ -34,19 +35,20 @@ Different people need different views of the same system. A developer debugging 
 
 Rather than building three separate dashboards, Meridian introduces **layers** — conceptually stacked views of the same spatial canvas. The topology stays fixed (same nodes, same positions), but the information overlaid on it changes entirely:
 
-| Layer | Persona | What you see |
-|---|---|---|
-| **Tracing** | Software Engineer | Request paths, latency, error propagation, span IDs |
+| Layer        | Persona            | What you see                                                         |
+| ------------ | ------------------ | -------------------------------------------------------------------- |
+| **Tracing**  | Software Engineer  | Request paths, latency, error propagation, span IDs                  |
 | **Building** | Product Owner / PM | Draft components, backlog items, team ownership, planned connections |
-| **Platform** | DevOps / SRE | CPU, memory, pod counts, health status, deployment versions, uptime |
+| **Platform** | DevOps / SRE       | CPU, memory, pod counts, health status, deployment versions, uptime  |
 
 The key insight is that layers don't overlay each other. They replace each other completely, like peeling back pages of a blueprint. The spatial position of every component stays the same across layers — only the lens through which you view it changes. This avoids the visual noise of trying to show everything at once.
 
 ### Focus through reduction
 
-Humans are bad at dealing with more than one thing at a time. Every additional piece of information on screen competes for attention. The core design principle is that **noise is the enemy**, and the interface should actively help you *not* see things you don't need.
+Humans are bad at dealing with more than one thing at a time. Every additional piece of information on screen competes for attention. The core design principle is that **noise is the enemy**, and the interface should actively help you _not_ see things you don't need.
 
 This manifests in several ways:
+
 - **Layer switching** removes entire categories of information with a single action
 - **Trace dimming** fades nodes that aren't part of the active trace, so the error path is visually obvious
 - **Node selection** opens a detail panel for deep inspection without leaving the canvas
@@ -65,6 +67,7 @@ Every design decision should earn its place. No decoration, no chrome that doesn
 ### Interactive Canvas
 
 A full-screen [React Flow](https://reactflow.dev) canvas with:
+
 - **Custom nodes** for services, databases, queues, gateways, and caches — each with distinct iconography and a colored accent stripe indicating its type
 - **Custom edges** with animated flow indicators showing data direction and protocol labels
 - **Ghost nodes and edges** (building layer only) for planned but not-yet-built components
@@ -83,6 +86,7 @@ Three layers switchable via the header dropdown or keyboard shortcuts (`1`, `2`,
 ### Node Detail Panel
 
 Clicking any node opens a slide-in panel on the right with:
+
 - Full metadata (type, team, description)
 - Layer-specific deep info (trace details, infrastructure metrics, or building proposals)
 - Feature breakdown with team ownership and per-feature health status
@@ -90,6 +94,7 @@ Clicking any node opens a slide-in panel on the right with:
 ### Mock System Topology
 
 An e-commerce platform with realistic complexity:
+
 - **API Gateway** → User Service, Product Catalog, Order Service
 - **Order Service** → Payment Service (error path), Inventory Service, Orders DB
 - **Payment Service** → Event Bus → Notification Service
@@ -131,6 +136,7 @@ src/
 ```
 
 Design decisions:
+
 - **Data layer is separate.** All mock data lives in `src/data/`. Swap it for API calls later without touching components.
 - **One node component, many appearances.** `SystemNode` adapts its rendering based on `kind` (service, database, queue...) and the active layer. No separate node components per type — the data drives the visual.
 - **Store drives the canvas.** The Zustand store computes which nodes and edges are visible per layer. Components read from the store and react.
@@ -139,18 +145,18 @@ Design decisions:
 
 ## Tech stack
 
-| Tool | Purpose |
-|---|---|
-| [React 19](https://react.dev) | UI framework |
-| [Vite 7](https://vite.dev) | Build tool |
-| [TanStack Router](https://tanstack.com/router) | File-based routing |
-| [React Flow](https://reactflow.dev) | Canvas, nodes, edges, minimap |
-| [Tailwind CSS 4](https://tailwindcss.com) | Styling via `@theme` tokens |
-| [shadcn/ui](https://ui.shadcn.com) | UI primitives (badge, tooltip, dialog...) |
-| [Zustand](https://zustand.docs.pmnd.rs) | Lightweight state management |
-| [Motion](https://motion.dev) | Spring-based transitions |
-| [Lucide](https://lucide.dev) | Icon library |
-| [Bun](https://bun.sh) | Runtime and package manager |
+| Tool                                           | Purpose                                   |
+| ---------------------------------------------- | ----------------------------------------- |
+| [React 19](https://react.dev)                  | UI framework                              |
+| [Vite 7](https://vite.dev)                     | Build tool                                |
+| [TanStack Router](https://tanstack.com/router) | File-based routing                        |
+| [React Flow](https://reactflow.dev)            | Canvas, nodes, edges, minimap             |
+| [Tailwind CSS 4](https://tailwindcss.com)      | Styling via `@theme` tokens               |
+| [shadcn/ui](https://ui.shadcn.com)             | UI primitives (badge, tooltip, dialog...) |
+| [Zustand](https://zustand.docs.pmnd.rs)        | Lightweight state management              |
+| [Motion](https://motion.dev)                   | Spring-based transitions                  |
+| [Lucide](https://lucide.dev)                   | Icon library                              |
+| [Bun](https://bun.sh)                          | Runtime and package manager               |
 
 ---
 
@@ -165,11 +171,11 @@ Open [http://localhost:5173](http://localhost:5173).
 
 ### Keyboard shortcuts
 
-| Key | Action |
-|---|---|
-| `1` | Switch to Tracing layer |
-| `2` | Switch to Building layer |
-| `3` | Switch to Platform layer |
+| Key   | Action                      |
+| ----- | --------------------------- |
+| `1`   | Switch to Tracing layer     |
+| `2`   | Switch to Building layer    |
+| `3`   | Switch to Platform layer    |
 | `Esc` | Deselect node / close panel |
 
 ---
@@ -179,6 +185,7 @@ Open [http://localhost:5173](http://localhost:5173).
 This is not a product. It is a sketch in code — a way to test whether spatial, layer-based interfaces feel right for developer platform management before investing in backend integration, real-time data pipelines, or production infrastructure.
 
 Things that are intentionally missing or faked:
+
 - No real data. Every metric, trace, and status is hardcoded in `src/data/system.ts`.
 - No backend. No APIs, no WebSocket connections, no database.
 - No auth, no multi-tenancy, no persistence.
@@ -186,7 +193,7 @@ Things that are intentionally missing or faked:
 - Semantic zoom (entering a node to see its internals) is represented via the detail panel's feature list, not as a true canvas-level drill-down.
 - No tests. This is throwaway exploration code.
 
-The value is in the *interaction model*, not the implementation.
+The value is in the _interaction model_, not the implementation.
 
 ---
 
@@ -203,4 +210,4 @@ If the spatial approach proves compelling, the next steps would be:
 
 ---
 
-*"Simplicity is the ultimate sophistication."* — Leonardo da Vinci
+_"Simplicity is the ultimate sophistication."_ — Leonardo da Vinci
