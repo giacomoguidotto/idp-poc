@@ -99,18 +99,20 @@ function EdgeLabel({
   labelY,
   isError,
   isWarning,
+  throughput,
 }: {
   data: SystemEdgeData;
   labelX: number;
   labelY: number;
   isError: boolean;
   isWarning: boolean;
+  throughput?: string;
 }) {
   return (
     <div
       className={cn(
         "pointer-events-all nodrag nopan edge-label absolute",
-        "rounded px-2 py-0.5 font-mono text-[9px]",
+        "flex items-center gap-1.5 rounded px-2 py-0.5 font-mono text-[9px]",
         "border border-border/50 bg-card/90 backdrop-blur-sm",
         "text-muted-foreground",
         isError && "border-layer-error/30 text-layer-error/80",
@@ -122,7 +124,13 @@ function EdgeLabel({
     >
       {data.label}
       {data.protocol && (
-        <span className="ml-1.5 text-[8px] opacity-60">{data.protocol}</span>
+        <span className="text-[8px] opacity-60">{data.protocol}</span>
+      )}
+      {throughput && (
+        <>
+          <span className="opacity-30">·</span>
+          <span className="text-layer-live opacity-80">{throughput}</span>
+        </>
       )}
     </div>
   );
@@ -205,7 +213,6 @@ function isEdgeSnapshotHighlighted(
   return affectedNodeIds.includes(source) && affectedNodeIds.includes(target);
 }
 
-// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: edge rendering branches across layers and snapshot modes are inherently conditional
 export function DataFlowEdge({
   id,
   source,
@@ -249,10 +256,11 @@ export function DataFlowEdge({
 
   const tracing = data?.tracing;
   const platform = data?.platform;
-  const isTraceActive = activeLayer === "live" && (tracing?.active ?? false);
-  const isError = tracing?.status === "error";
-  const isWarning = tracing?.status === "warning";
-  const dimmed = activeLayer === "live" && !(tracing?.active ?? false);
+  // In live layer: all edges are animated with uniform flow (no error highlighting).
+  const isTraceActive = activeLayer === "live";
+  const isError = false;
+  const isWarning = false;
+  const dimmed = false;
 
   const strokeColor = resolveStrokeColor(
     activeLayer,
@@ -264,8 +272,9 @@ export function DataFlowEdge({
 
   const showLabel = !!(
     data?.label &&
-    (selected || isTraceActive || activeLayer === "building")
+    (selected || activeLayer === "live" || activeLayer === "building")
   );
+  const showThroughput = activeLayer === "live" && !!tracing?.throughput;
   const showMetrics = activeLayer === "platform" && platform;
 
   const focusDrawStyle = isFocusModeEdge
@@ -308,6 +317,7 @@ export function DataFlowEdge({
             isWarning={isWarning}
             labelX={labelX}
             labelY={labelY}
+            throughput={showThroughput ? tracing?.throughput : undefined}
           />
         )}
         {!isFocusModeDimmed && showMetrics && platform && (

@@ -29,7 +29,6 @@ import {
   CARD_W,
   cardBorderPoint,
 } from "@/components/canvas/focus-overlay";
-import { Badge } from "@/components/ui/badge";
 import type {
   HealthStatus,
   NodeKind,
@@ -134,52 +133,30 @@ function MetricBar({
   );
 }
 
-function TracingOverlay({ data }: { data: SystemNodeData }) {
+function LiveOverlay({ data }: { data: SystemNodeData }) {
   const tracing = data.tracing;
-  if (!tracing) {
+  const platform = data.platform;
+  if (!(tracing || platform)) {
     return null;
   }
 
-  const isError = tracing.status === "error";
-  const isWarning = tracing.status === "warning";
-
   return (
-    <div className="mt-2 space-y-1.5">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1.5">
-          <Clock className="h-3 w-3 text-muted-foreground" />
-          <span
-            className={cn(
-              "font-mono text-[11px]",
-              isError ? "font-semibold text-layer-error" : "text-foreground/70"
-            )}
-          >
+    <div className="mt-2 flex items-center gap-3 text-[10px] text-muted-foreground">
+      {tracing && (
+        <div className="flex items-center gap-1">
+          <Clock className="h-3 w-3 shrink-0" />
+          <span className="font-mono text-foreground/60">
             {formatLatency(tracing.latencyMs)}
           </span>
         </div>
-        {isError && (
-          <Badge
-            className="h-4 px-1.5 py-0 font-mono text-[9px]"
-            variant="destructive"
-          >
-            ERROR
-          </Badge>
-        )}
-        {isWarning && (
-          <Badge className="h-4 border-layer-warning/30 bg-layer-warning/20 px-1.5 py-0 font-mono text-[9px] text-layer-warning hover:bg-layer-warning/20">
-            WARN
-          </Badge>
-        )}
-        {tracing.status === "ok" && (
-          <Badge className="h-4 border-emerald-500/30 bg-emerald-500/15 px-1.5 py-0 font-mono text-[9px] text-emerald-400 hover:bg-emerald-500/15">
-            OK
-          </Badge>
-        )}
-      </div>
-      {tracing.errorMessage && (
-        <p className="rounded border border-layer-error/10 bg-layer-error/5 px-1.5 py-1 font-mono text-[10px] text-layer-error/80 leading-tight">
-          {tracing.errorMessage}
-        </p>
+      )}
+      {platform?.uptime && (
+        <div className="flex items-center gap-1">
+          <Activity className="h-3 w-3 shrink-0" />
+          <span className="font-mono text-foreground/60">
+            {platform.uptime}
+          </span>
+        </div>
       )}
     </div>
   );
@@ -520,21 +497,6 @@ function buildPortHandles(
   });
 }
 
-/** Returns true when a live-layer node is not part of the active trace path. */
-function isNodeDimmed(
-  activeLayer: string,
-  isOnTracePath: boolean,
-  kind: NodeKind
-): boolean {
-  return (
-    activeLayer === "live" &&
-    !isOnTracePath &&
-    kind !== "database" &&
-    kind !== "cache" &&
-    kind !== "queue"
-  );
-}
-
 // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: JSX branching across layers is inherently complex
 export function SystemNodeComponent({
   id,
@@ -553,11 +515,11 @@ export function SystemNodeComponent({
   const { zoom } = useViewport();
 
   const isDraft = data.building?.isDraft ?? false;
-  const isError = data.tracing?.status === "error" && activeLayer === "live";
-  const isOnTracePath = Boolean(data.tracing && activeLayer === "live");
+  // Live layer shows clean metrics with no error highlighting.
+  const isError = false;
   const isCritical =
     data.platform?.health === "critical" && activeLayer === "platform";
-  const dimmed = isNodeDimmed(activeLayer, isOnTracePath, data.kind);
+  const dimmed = false;
 
   const isSnapshotActive = activeTimelineEvent !== null;
   const isSnapshotHighlighted =
@@ -698,7 +660,7 @@ export function SystemNodeComponent({
             {data.description}
           </p>
 
-          {activeLayer === "live" && <TracingOverlay data={data} />}
+          {activeLayer === "live" && <LiveOverlay data={data} />}
           {activeLayer === "building" && <BuildingOverlay data={data} />}
           {activeLayer === "platform" && <PlatformOverlay data={data} />}
         </div>
