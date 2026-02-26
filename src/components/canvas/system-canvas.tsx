@@ -40,12 +40,15 @@ const bgColors = {
   platform: "oklch(0.77 0.15 165 / 0.12)",
 } as const;
 
-/** Computes angle from focused node center to each neighbor center. */
+/** Computes angle from focused node center to each neighbor center.
+ *  Uses originalPositions (pre-scatter) when available so directions
+ *  are stable across focus switches. */
 function buildNeighborAngles(
   allNodes: Node[],
   neighborIds: string[],
   fx: number,
-  fy: number
+  fy: number,
+  originalPositions: Record<string, { x: number; y: number }>
 ): Record<string, number> {
   const angles: Record<string, number> = {};
   for (const n of allNodes) {
@@ -54,10 +57,8 @@ function buildNeighborAngles(
     }
     const nw = n.measured?.width ?? 220;
     const nh = n.measured?.height ?? 160;
-    angles[n.id] = Math.atan2(
-      n.position.y + nh / 2 - fy,
-      n.position.x + nw / 2 - fx
-    );
+    const origPos = originalPositions[n.id] ?? n.position;
+    angles[n.id] = Math.atan2(origPos.y + nh / 2 - fy, origPos.x + nw / 2 - fx);
   }
   return angles;
 }
@@ -172,22 +173,30 @@ function FocusController({
 
     const fw = focusedNode.measured?.width ?? 220;
     const fh = focusedNode.measured?.height ?? 160;
-    const fx = focusedNode.position.x + fw / 2;
-    const fy = focusedNode.position.y + fh / 2;
+
+    // When switching focus nodes the new target may already be scattered
+    // (sitting at the viewport edge). Always use the pre-scatter original
+    // position so fx/fy lands at the node's true canvas location.
+    const focusOrigPos =
+      originalPositionsRef.current[focusModeNodeId] ??
+      focusedNodeStateRef.current?.position ?? // fallback: previously-focused pos
+      focusedNode.position;
+    const fx = focusOrigPos.x + fw / 2;
+    const fy = focusOrigPos.y + fh / 2;
 
     const { zoom } = rf.getViewport();
     // Viewport half-dimensions in flow coordinates (after centering on focused node).
     const halfW = window.innerWidth / zoom / 2;
     const halfH = window.innerHeight / zoom / 2;
 
-    // Save focused node's original state (first visit only).
+    // Save focused node's original state (use the pre-scatter origin, not current pos).
     if (
       !focusedNodeStateRef.current ||
       focusedNodeStateRef.current.id !== focusModeNodeId
     ) {
       focusedNodeStateRef.current = {
         id: focusModeNodeId,
-        position: { ...focusedNode.position },
+        position: focusOrigPos,
         style: focusedNode.style,
       };
     }
@@ -204,16 +213,24 @@ function FocusController({
       if (n.id === focusModeNodeId) {
         continue;
       }
-      // Only save the original position the first time this node gets scattered.
-      // On subsequent node switches, the stored value remains the true original.
+      // Use the stored original position for scatter input so directions are
+      // computed from the true canvas layout, not the current scattered positions.
+      // For the previously-focused node (not yet in originalPositionsRef), seed
+      // its original position from focusedNodeStateRef before overwriting it.
       if (!originalPositionsRef.current[n.id]) {
-        originalPositionsRef.current[n.id] = { ...n.position };
+        const prevFocused = focusedNodeStateRef.current;
+        if (prevFocused && prevFocused.id === n.id) {
+          originalPositionsRef.current[n.id] = { ...prevFocused.position };
+        } else {
+          originalPositionsRef.current[n.id] = { ...n.position };
+        }
       }
+      const origPos = originalPositionsRef.current[n.id];
       const nw = n.measured?.width ?? 220;
       const nh = n.measured?.height ?? 160;
       newPositions[n.id] = scatterPosition(
-        n.position.x + nw / 2,
-        n.position.y + nh / 2,
+        origPos.x + nw / 2,
+        origPos.y + nh / 2,
         fx,
         fy,
         halfW,
@@ -251,7 +268,13 @@ function FocusController({
 
     // Compute angle from focused node center to each neighbor center.
     setFocusModeNeighborAngles(
-      buildNeighborAngles(allNodes, neighborIds, fx, fy)
+      buildNeighborAngles(
+        allNodes,
+        neighborIds,
+        fx,
+        fy,
+        originalPositionsRef.current
+      )
     );
 
     // Route edges to per-neighbor port handles so they terminate at border points.
