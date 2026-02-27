@@ -69,3 +69,4 @@ Autopromote or schedule autopromotions services, useful when inspecting the the 
 - numbers of companies using IDPs
 - most common IDPs on the market
 - most frustrating things about current IDPs
+- the most used interaction medium for inspecting a platform: mouse, trackpad, touch, keyboard, pen.
