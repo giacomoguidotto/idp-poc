@@ -2,212 +2,108 @@
 
 > A visual-first Internal Developer Platform — exploring spatial interfaces for complex system management.
 
-**This is a Proof of Concept.** There is no backend, no real data, no integrations. Every node, edge, metric, and trace is hardcoded. The sole purpose of this project is to test ideas about how developers, product managers, and platform engineers might interact with a system-as-a-map interface — and to serve as a starting point for design reasoning.
-
----
-
-## Why this exists
-
-Modern platforms are invisible. You interact with them through CLI commands, YAML files, dashboards split across a dozen tabs, and log aggregators that assume you already know where to look. The mental model of "the system" lives exclusively in people's heads, and it's different for every person.
-
-This PoC asks a question: **what if the system was something you could see, all at once, laid out in space?**
+**This is a Proof of Concept.** No backend, no real data, no integrations. Every node, edge, metric, and trace is hardcoded. The sole purpose is to test whether a system-as-a-map interface works — and to serve as a starting point for design reasoning.
 
 ## Philosophy
 
 ### Spatial reasoning over sequential navigation
 
-Humans live in a 3D world and interact with 2D screens. We're wired to reason spatially — about proximity, flow, direction, containment. Traditional developer platforms ignore this entirely: they present systems as lists, tables, and trees, forcing users to reconstruct spatial relationships in their heads.
+Humans are wired to reason spatially — about proximity, flow, direction, containment. Traditional developer platforms present systems as lists, tables, and trees, forcing users to reconstruct spatial relationships in their heads.
 
-Orray places the entire system on a canvas. Services, databases, queues, and caches become objects with physical positions. Connections between them — data flows, API calls, event streams — become visible lines with direction. The topology isn't described; it's _drawn_.
-
-This isn't about making things pretty. Spatial layout lets you answer questions that are hard to answer with text:
-
-- What does this service depend on?
-- Where does data flow after it leaves the gateway?
-- Which services are clustered together? Which ones are isolated?
-- Is the failure in the payment path or the notification path?
-
-You can answer all of these by looking, not searching.
+Orray places the entire system on a canvas. Services, databases, queues, and caches become objects with physical positions. Connections become visible lines with direction. The topology isn't described; it's _drawn_.
 
 ### Layers as a third dimension
 
-Different people need different views of the same system. A developer debugging a production incident doesn't need to see deployment versions. A product manager planning the next quarter doesn't need CPU metrics. A platform engineer monitoring infrastructure doesn't need feature-level breakdowns.
+Different people need different views of the same system. Rather than three dashboards, Orray introduces **layers** — stacked views of the same spatial canvas. The topology stays fixed, but the information changes entirely:
 
-Rather than building three separate dashboards, Orray introduces **layers** — conceptually stacked views of the same spatial canvas. The topology stays fixed (same nodes, same positions), but the information overlaid on it changes entirely:
-
-| Layer        | Persona            | What you see                                                         |
-| ------------ | ------------------ | -------------------------------------------------------------------- |
-| **Tracing**  | Software Engineer  | Request paths, latency, error propagation, span IDs                  |
+| Layer | Persona | What you see |
+|-------|---------|-------------|
+| **Live** | Software Engineer | Request paths, latency, error propagation, span IDs |
 | **Building** | Product Owner / PM | Draft components, backlog items, team ownership, planned connections |
-| **Platform** | DevOps / SRE       | CPU, memory, pod counts, health status, deployment versions, uptime  |
-
-The key insight is that layers don't overlay each other. They replace each other completely, like peeling back pages of a blueprint. The spatial position of every component stays the same across layers — only the lens through which you view it changes. This avoids the visual noise of trying to show everything at once.
+| **Platform** | DevOps / SRE | CPU, memory, pod counts, health status, versions, uptime |
 
 ### Focus through reduction
 
-Humans are bad at dealing with more than one thing at a time. Every additional piece of information on screen competes for attention. The core design principle is that **noise is the enemy**, and the interface should actively help you _not_ see things you don't need.
+Noise is the enemy. The interface actively helps you _not_ see things you don't need. Layer switching removes entire categories of information. Trace dimming fades irrelevant nodes. Semantic zoom lets you enter a service and break it down.
 
-This manifests in several ways:
+_"Simplicity is the ultimate sophistication."_
 
-- **Layer switching** removes entire categories of information with a single action
-- **Trace dimming** fades nodes that aren't part of the active trace, so the error path is visually obvious
-- **Node selection** opens a detail panel for deep inspection without leaving the canvas
-- **Semantic zoom** (not yet implemented) would let you "enter" a service and see its internal features, breaking down a complex node into its constituent parts
+---
 
-The goal is always the same: reduce cognitive load. Let the user focus on exactly what matters right now.
+## Ideas
 
-### Simplicity is the ultimate sophistication
+| ID | Name | TL;DR | Details |
+|----|------|-------|---------|
+| I1 | Timeline + Relive | Draggable timeline panel; click event to enter snapshot; relive mode replays traces step-by-step | [ideas.md#i1](docs/ideas.md#i1---version-control--timeline--relive-event) |
+| I2 | Repo Introspection | LLM inspects repo structure, maps features and connections | [ideas.md#i2](docs/ideas.md#i2---repo-introspection) |
+| I3 | RBAC | Meta-canvas where platform functions become nodes; configure permissions spatially | [ideas.md#i3](docs/ideas.md#i3---rbac) |
+| I4 | Semantic Zoom | Zoom into a node to reveal internals (features, kafka topics) | [ideas.md#i4](docs/ideas.md#i4---semantic-zoom) |
+| I5 | DevOps View | Full cluster visibility in Platform layer (namespaces, pods, kubelet) | [ideas.md#i5](docs/ideas.md#i5---devops-view) |
+| I6 | Universal Search | `cmd+k` to search anything | [ideas.md#i6](docs/ideas.md#i6---universal-search) |
+| I7 | Multi-collaboration | Real-time multi-user editing + chat | [ideas.md#i7](docs/ideas.md#i7---multi-collaboration) |
+| I8 | Env Stacking | Z-axis stacking of environments; diff highlighting; quick diff overlay | [ideas.md#i8](docs/ideas.md#i8---env-stacking-diff-between-envs) |
+| I9 | Kargo Plugin | Autopromote / schedule service promotions across envs | [ideas.md#i9](docs/ideas.md#i9---kargo-plugin) |
+| I10 | Blast Radius | "What if this dies?" domino-effect simulation across the graph | [ideas.md#i10](docs/ideas.md#i10---blast-radius-simulation) |
+| I11 | Cost Flow Layer | Edge thickness = dollar cost; radial fill on nodes for monthly spend | [ideas.md#i11](docs/ideas.md#i11---cost-flow-layer) |
+| I12 | Ambient Sonification | Generative audio mapped to system health; hear degradation before seeing it | [ideas.md#i12](docs/ideas.md#i12---ambient-sonification) |
+| I13 | Canvas Annotations | Freeform drawing layer (pen, arrows, stickies) persisted per-layer | [ideas.md#i13](docs/ideas.md#i13---canvas-annotations--sketch-layer) |
+| I14 | Spatial Bookmarks | Save camera + layer + focus + timeline as a named viewpoint; deep-linkable | [ideas.md#i14](docs/ideas.md#i14---spatial-bookmarks-viewpoints) |
+| I15 | AI Narrator | LLM narrates system events in natural language; click to navigate | [ideas.md#i15](docs/ideas.md#i15---ai-narrator-system-storytelling) |
+| I16 | Ownership Territories | Convex hulls colored by team; visualize boundaries and orphaned services | [ideas.md#i16](docs/ideas.md#i16---ownership-territories) |
+| I17 | Runbook Actions | Right-click node for actions (restart, scale, deploy); canvas as control plane | [ideas.md#i17](docs/ideas.md#i17---runbook-actions-canvas-as-control-plane) |
+| I18 | Project List | Zoom-out past threshold to see all projects as live-thumbnail tiles | [ideas.md#i18](docs/ideas.md#i18---project-list-canvas-of-canvases) |
 
-Every design decision should earn its place. No decoration, no chrome that doesn't serve a purpose. Information density is good; visual noise is not. The difference is whether each element helps you make a decision.
+## Design Choices
+
+- **SRD** as representation of a resource node. Deployments are too fine-grained.
+- Divide SRD resources by **project / environment**.
+- Inputs:
+  - `db` — link to an already deployed GreptimeDB, self-deployed by us if not provided
+  - `collector` — optional, requires config from the user to set a new destination for the telemetries
+  - `org link` — for LLM inspection (?)
+
+## Open Questions
+
+- **Layout**: auto, with manual intervention in building layer.
+- **Plugins**: No. Conflicts with business model. Simplifies design. Does not mean building an unscalable monolith.
+
+## Research
+
+| Topic | File |
+|-------|------|
+| Performance: ReactFlow ceiling & alternatives | [docs/performance.md](docs/performance.md) |
+| Market: K8s adoption, IDP landscape, pain points | [docs/market-research.md](docs/market-research.md) |
 
 ---
 
 ## What this PoC demonstrates
 
-### Interactive Canvas
+- **Interactive canvas** — React Flow with custom nodes (service, database, queue, gateway, cache), animated edges, ghost nodes for drafts
+- **Three persona layers** — Live (cyan), Building (amber), Platform (teal) switchable via header or `1`/`2`/`3` keys
+- **Focus mode** — Click a node to scatter neighbors to viewport edges, isolating the focus target
+- **Timeline panel** — Draggable, proportional bar chart with event snapshots and natural-language search
+- **Node detail panel** — Slide-in inspector with layer-specific metadata
+- **Mock topology** — E-commerce system: API Gateway, 5 services, 3 databases, Redis, Kafka, 2 draft nodes
 
-A full-screen [React Flow](https://reactflow.dev) canvas with:
-
-- **Custom nodes** for services, databases, queues, gateways, and caches — each with distinct iconography and a colored accent stripe indicating its type
-- **Custom edges** with animated flow indicators showing data direction and protocol labels
-- **Ghost nodes and edges** (building layer only) for planned but not-yet-built components
-- Pan, zoom, minimap navigation
-
-### Persona-Based Layers
-
-Three layers switchable via the header dropdown or keyboard shortcuts (`1`, `2`, `3`):
-
-**Tracing (SWE)** — Cyan accent. Edges animate to show data flow direction. Nodes on the active trace path are highlighted; everything else is dimmed. The Payment Service node pulses red with a 12-second timeout error. Error messages, latency values, and span IDs are surfaced directly on the nodes.
-
-**Building (PO/PM)** — Amber accent. Two draft nodes appear (Recommendation Engine, Analytics Service) with dashed borders, representing planned additions. Each existing node gets edit/delete controls. A floating toolbar at the bottom offers spatial design tools: Select, Add Component, Connect, Label. Ghost edges show proposed data flows.
-
-**Platform (DevOps)** — Teal accent. Every node displays CPU and memory utilization bars (color-coded green → amber → red by threshold), pod readiness counts, health status badges, version numbers, and last deploy timestamps. Edges show requests per second, error rates, and p99 latency.
-
-### Node Detail Panel
-
-Clicking any node opens a slide-in panel on the right with:
-
-- Full metadata (type, team, description)
-- Layer-specific deep info (trace details, infrastructure metrics, or building proposals)
-- Feature breakdown with team ownership and per-feature health status
-
-### Mock System Topology
-
-An e-commerce platform with realistic complexity:
-
-- **API Gateway** → User Service, Product Catalog, Order Service
-- **Order Service** → Payment Service (error path), Inventory Service, Orders DB
-- **Payment Service** → Event Bus → Notification Service
-- Supporting infrastructure: 3 PostgreSQL databases, Redis cache, Kafka event bus
-- Draft components: Recommendation Engine, Analytics Service
-
----
-
-## Project structure
+## Structure
 
 ```
 src/
-├── data/                    # Mock data — completely decoupled from UI
-│   ├── types.ts             # Type definitions for nodes, edges, layers, metrics
-│   └── system.ts            # System topology, draft nodes/edges, all hardcoded data
-├── stores/
-│   └── layer-store.ts       # Zustand store — active layer, selection, computed node/edge sets
+├── data/           # Mock data (types.ts, system.ts) — decoupled from UI
+├── stores/         # Zustand store — layer state, selection, computed nodes/edges
 ├── components/
-│   ├── canvas/
-│   │   ├── SystemCanvas.tsx  # Main React Flow canvas composition
-│   │   ├── CanvasHeader.tsx  # Header pill with layer dropdown
-│   │   ├── nodes/
-│   │   │   └── SystemNode.tsx    # Universal node component adapting to kind + layer
-│   │   └── edges/
-│   │       ├── DataFlowEdge.tsx  # Animated edge with layer-aware styling
-│   │       └── GhostEdge.tsx     # Dashed edge for draft connections
-│   ├── panels/
-│   │   ├── NodeDetailPanel.tsx   # Right-side detail inspector
-│   │   └── BuildingToolbar.tsx   # Bottom toolbar for building layer
-│   └── ui/                       # shadcn/ui primitives
-├── hooks/
-│   └── use-keyboard-shortcuts.ts
-├── routes/                  # TanStack Router file-based routing
-│   ├── __root.tsx
-│   └── index.tsx
-├── lib/utils.ts
-├── main.tsx
-└── index.css                # Theme tokens, React Flow overrides, animations
+│   ├── canvas/     # SystemCanvas, CanvasHeader, SystemNode, DataFlowEdge
+│   └── panels/     # NodeDetailPanel, BuildingToolbar, TimelinePanel
+├── hooks/          # Keyboard shortcuts
+└── routes/         # TanStack Router
 ```
 
-Design decisions:
+## Stack
 
-- **Data layer is separate.** All mock data lives in `src/data/`. Swap it for API calls later without touching components.
-- **One node component, many appearances.** `SystemNode` adapts its rendering based on `kind` (service, database, queue...) and the active layer. No separate node components per type — the data drives the visual.
-- **Store drives the canvas.** The Zustand store computes which nodes and edges are visible per layer. Components read from the store and react.
+React 19 · Vite 7 · React Flow · Zustand · Tailwind 4 · shadcn/ui · Motion · Bun
 
----
-
-## Tech stack
-
-| Tool                                           | Purpose                                   |
-| ---------------------------------------------- | ----------------------------------------- |
-| [React 19](https://react.dev)                  | UI framework                              |
-| [Vite 7](https://vite.dev)                     | Build tool                                |
-| [TanStack Router](https://tanstack.com/router) | File-based routing                        |
-| [React Flow](https://reactflow.dev)            | Canvas, nodes, edges, minimap             |
-| [Tailwind CSS 4](https://tailwindcss.com)      | Styling via `@theme` tokens               |
-| [shadcn/ui](https://ui.shadcn.com)             | UI primitives (badge, tooltip, dialog...) |
-| [Zustand](https://zustand.docs.pmnd.rs)        | Lightweight state management              |
-| [Motion](https://motion.dev)                   | Spring-based transitions                  |
-| [Lucide](https://lucide.dev)                   | Icon library                              |
-| [Bun](https://bun.sh)                          | Runtime and package manager               |
-
----
-
-## Running locally
+## Running
 
 ```bash
-bun install
-bun dev
+bun install && bun dev
 ```
-
-Open [http://localhost:5173](http://localhost:5173).
-
-### Keyboard shortcuts
-
-| Key   | Action                      |
-| ----- | --------------------------- |
-| `1`   | Switch to Tracing layer     |
-| `2`   | Switch to Building layer    |
-| `3`   | Switch to Platform layer    |
-| `Esc` | Deselect node / close panel |
-
----
-
-## What this is not
-
-This is not a product. It is a sketch in code — a way to test whether spatial, layer-based interfaces feel right for developer platform management before investing in backend integration, real-time data pipelines, or production infrastructure.
-
-Things that are intentionally missing or faked:
-
-- No real data. Every metric, trace, and status is hardcoded in `src/data/system.ts`.
-- No backend. No APIs, no WebSocket connections, no database.
-- No auth, no multi-tenancy, no persistence.
-- The building toolbar buttons don't actually create nodes (yet).
-- Semantic zoom (entering a node to see its internals) is represented via the detail panel's feature list, not as a true canvas-level drill-down.
-- No tests. This is throwaway exploration code.
-
-The value is in the _interaction model_, not the implementation.
-
----
-
-## Where this could go
-
-If the spatial approach proves compelling, the next steps would be:
-
-1. **Semantic zoom** — Double-click a service to enter it. The canvas transitions to show its internal features, endpoints, and dependencies as a nested graph. Breadcrumb navigation to go back up.
-2. **Real-time data binding** — Connect to Kubernetes APIs, Prometheus, Jaeger/Tempo for live metrics, traces, and topology discovery.
-3. **Collaborative canvas** — Multiple users viewing and annotating the same system map in real time (multiplayer cursors, comments, annotations).
-4. **Topology auto-layout** — Derive node positions from service mesh data or OpenTelemetry traces instead of hardcoding positions.
-5. **Time travel** — Scrub a timeline to see how the system looked at any point in the past (deployments, incidents, topology changes).
-6. **Alerting integration** — Nodes light up in real time when PagerDuty/Opsgenie alerts fire, with the trace layer auto-focusing on the affected path.
-
----
-
-_"Simplicity is the ultimate sophistication."_ — Leonardo da Vinci
