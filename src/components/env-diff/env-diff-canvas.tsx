@@ -25,8 +25,10 @@ const GRAPH_EDGES = [
 
 const SELECTED_IDS = ["api", "users", "orders", "payments"];
 
-// Env-diff: nodes on a horizontal line at the vertical center of the viewport.
-// Env cards grow ABOVE each node (z-axis points up).
+const UNSELECTED_NODES = GRAPH_NODES.filter(
+  (n) => !SELECTED_IDS.includes(n.id)
+);
+
 const ENV_LINE_Y = 380;
 const ENV_LINE: Record<string, { x: number; y: number }> = {
   api: { x: 130, y: ENV_LINE_Y },
@@ -67,7 +69,7 @@ function nodeById(id: string) {
   return GRAPH_NODES.find((n) => n.id === id);
 }
 
-// ─── Node style (shared between modes) ───────────────────────────────────────
+// ─── Node style ──────────────────────────────────────────────────────────────
 
 const SELECTED_STYLE = {
   background: "oklch(0.17 0.03 200)",
@@ -101,15 +103,14 @@ export function EnvDiffCanvas() {
     const rotationOpts = { duration: 0.85, ease: [0.3, 0, 0.7, 1] } as const;
 
     if (mode === "graph") {
-      // Forward: switch layout, then rotate to hide transition
+      // Forward: switch layout, rotate graph surface to 90° (edge-on)
       setMode("env");
       await animate(scope.current, { rotateX: 90 }, rotationOpts);
-      await animate(scope.current, { rotateX: 0 }, { duration: 0 });
+      // Leave scope at 90° — surface is naturally invisible
     } else {
-      // Reverse: rotate to hide env view FIRST, then switch layout
-      await animate(scope.current, { rotateX: -90 }, rotationOpts);
+      // Reverse: animate surface back from 90° → 0° (unfolds toward viewer)
+      await animate(scope.current, { rotateX: 0 }, rotationOpts);
       setMode("graph");
-      await animate(scope.current, { rotateX: 0 }, { duration: 0 });
     }
 
     setIsAnimating(false);
@@ -158,9 +159,12 @@ export function EnvDiffCanvas() {
           className="relative mx-auto h-full w-full max-w-[900px]"
           style={{ perspective: "1200px" }}
         >
-          {/* ── Rotating layer: graph surface (edges only) ── */}
+          {/* ── Rotating layer: graph surface (edges + unselected nodes) ── */}
+          {/* Rotates to 90° on forward, back to 0° on reverse.             */}
+          {/* At 90° everything here is edge-on → naturally invisible.       */}
           <div className="pointer-events-none absolute inset-0" ref={scope}>
-            <svg aria-hidden="true" className="h-full w-full">
+            {/* Graph edges */}
+            <svg aria-hidden="true" className="absolute inset-0 h-full w-full">
               {GRAPH_EDGES.map((edge) => {
                 const from = nodeById(edge.from);
                 const to = nodeById(edge.to);
@@ -168,12 +172,10 @@ export function EnvDiffCanvas() {
                   return null;
                 }
                 return (
-                  <motion.line
-                    animate={{ opacity: isEnv ? 0 : 1 }}
+                  <line
                     key={`${edge.from}-${edge.to}`}
                     stroke="oklch(0.32 0.02 270)"
                     strokeWidth={1.5}
-                    transition={{ duration: 0.25, delay: isEnv ? 0 : 0.45 }}
                     x1={from.x}
                     x2={to.x}
                     y1={from.y}
@@ -181,57 +183,72 @@ export function EnvDiffCanvas() {
                   />
                 );
               })}
-
-              {/* Env-mode: horizontal dashed connector on the X line */}
-              <motion.line
-                animate={{ opacity: isEnv ? 1 : 0 }}
-                stroke="oklch(0.28 0.02 270)"
-                strokeDasharray="6 4"
-                strokeWidth={1}
-                transition={{ duration: 0.3, delay: isEnv ? 0.5 : 0 }}
-                x1={130}
-                x2={760}
-                y1={ENV_LINE_Y}
-                y2={ENV_LINE_Y}
-              />
             </svg>
-          </div>
 
-          {/* ── Flat layer: nodes, env cards, labels (never rotated) ── */}
-
-          {/* All nodes (hero-animate between graph pos ↔ env line) */}
-          {GRAPH_NODES.map((node) => {
-            const selected = SELECTED_IDS.includes(node.id);
-            const envPos = ENV_LINE[node.id];
-            const targetX = isEnv && selected && envPos ? envPos.x : node.x;
-            const targetY = isEnv && selected && envPos ? envPos.y : node.y;
-
-            return (
-              <motion.div
-                animate={{
-                  left: targetX,
-                  top: targetY,
-                  opacity: isEnv && !selected ? 0 : 1,
-                  scale: isEnv && !selected ? 0.7 : 1,
-                }}
+            {/* Unselected nodes — rotate with the surface */}
+            {UNSELECTED_NODES.map((node) => (
+              <div
                 className="absolute -translate-x-1/2 -translate-y-1/2"
                 key={node.id}
-                transition={{
-                  left: { duration: 0.75, ease: [0.4, 0, 0.15, 1] },
-                  top: { duration: 0.75, ease: [0.4, 0, 0.15, 1] },
-                  opacity: { duration: 0.25, delay: isEnv ? 0 : 0.3 },
-                  scale: { duration: 0.25 },
-                }}
+                style={{ left: node.x, top: node.y }}
               >
                 <div
                   className="whitespace-nowrap rounded-lg border px-3.5 py-2 font-medium text-xs"
-                  style={selected ? SELECTED_STYLE : UNSELECTED_STYLE}
+                  style={UNSELECTED_STYLE}
                 >
                   {node.label}
                 </div>
-              </motion.div>
-            );
-          })}
+              </div>
+            ))}
+          </div>
+
+          {/* ── Flat layer (never rotated) ── */}
+
+          {/* Env-mode: horizontal dashed connector */}
+          <svg
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 h-full w-full"
+          >
+            <motion.line
+              animate={{ opacity: isEnv ? 1 : 0 }}
+              stroke="oklch(0.28 0.02 270)"
+              strokeDasharray="6 4"
+              strokeWidth={1}
+              transition={{ duration: 0.3, delay: isEnv ? 0.88 : 0 }}
+              x1={130}
+              x2={760}
+              y1={ENV_LINE_Y}
+              y2={ENV_LINE_Y}
+            />
+          </svg>
+
+          {/* Selected nodes (hero-animate between graph pos ↔ env line) */}
+          {GRAPH_NODES.filter((n) => SELECTED_IDS.includes(n.id)).map(
+            (node) => {
+              const envPos = ENV_LINE[node.id];
+              const targetX = isEnv && envPos ? envPos.x : node.x;
+              const targetY = isEnv && envPos ? envPos.y : node.y;
+
+              return (
+                <motion.div
+                  animate={{ left: targetX, top: targetY }}
+                  className="absolute -translate-x-1/2 -translate-y-1/2"
+                  key={node.id}
+                  transition={{
+                    duration: 0.75,
+                    ease: [0.4, 0, 0.15, 1],
+                  }}
+                >
+                  <div
+                    className="whitespace-nowrap rounded-lg border px-3.5 py-2 font-medium text-xs"
+                    style={SELECTED_STYLE}
+                  >
+                    {node.label}
+                  </div>
+                </motion.div>
+              );
+            }
+          )}
 
           {/* Env version cards ABOVE nodes (z-axis points up) */}
           <AnimatePresence>
